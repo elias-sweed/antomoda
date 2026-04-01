@@ -1,10 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, HTMLMotionProps } from "framer-motion"; // Importamos HTMLMotionProps
 import React from "react";
 
-interface AuroraTextProps extends React.HTMLAttributes<HTMLSpanElement> {
+// Cambiamos la interfaz para que use los tipos de framer-motion
+interface AuroraTextProps extends HTMLMotionProps<"span"> {
   className?: string;
   children: React.ReactNode;
   colors?: string[];
@@ -26,7 +27,6 @@ export function AuroraText({
       )}
       {...props}
     >
-      {/* Gradiente animado que se mueve dentro del texto */}
       <motion.span
         className="absolute inset-0 bg-[length:200%_200%] bg-clip-text text-transparent"
         style={{
@@ -44,7 +44,6 @@ export function AuroraText({
         {children}
       </motion.span>
 
-      {/* Texto visible (para accesibilidad y renderizado) */}
       <span className="relative z-10 bg-clip-text text-transparent" aria-hidden="true">
         {children}
       </span>
