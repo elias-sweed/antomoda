@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { obtenerProductoPorId, actualizarProducto, subirImagen } from '../../services/productos'
+import { 
+  obtenerProductoPorId, 
+  actualizarProducto, 
+  subirImagen, 
+  eliminarImagenDeStorage // Importamos la nueva función
+} from '../../services/productos'
 import { Tranquiluxe } from "uvcanvas"
 
 const TALLAS_DISPONIBLES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Estándar']
@@ -86,11 +91,27 @@ export default function EditarProducto() {
     setLoading(true)
 
     try {
-      // 1. Subir las nuevas imágenes
+      // 1. Obtener el producto actual de la DB para comparar imágenes
+      const productoOriginal = await obtenerProductoPorId(id)
+      const imagenesAnteriores = productoOriginal.imagenes || []
+
+      // 2. Identificar qué imágenes estaban antes pero ya no están (fueron eliminadas en el UI)
+      const imagenesParaBorrarDeStorage = imagenesAnteriores.filter(
+        (urlAnterior) => !imagenesExistentes.includes(urlAnterior)
+      )
+
+      // 3. Borrar físicamente los archivos del bucket de Supabase
+      if (imagenesParaBorrarDeStorage.length > 0) {
+        await Promise.all(
+          imagenesParaBorrarDeStorage.map((url) => eliminarImagenDeStorage(url))
+        )
+      }
+
+      // 4. Subir las nuevas imágenes seleccionadas
       const urlsNuevasPromesas = nuevasImagenes.map(img => subirImagen(img))
       const urlsNuevasSubidas = await Promise.all(urlsNuevasPromesas)
 
-      // 2. Combinar las que ya estaban con las nuevas
+      // 5. Combinar las imágenes que se quedaron con las nuevas subidas
       const todasLasImagenes = [...imagenesExistentes, ...urlsNuevasSubidas]
 
       const arrayColores = formData.colores
@@ -98,6 +119,7 @@ export default function EditarProducto() {
         .map(color => color.trim())
         .filter(color => color !== '')
 
+      // 6. Actualizar el registro en la base de datos
       await actualizarProducto(id, {
         nombre: formData.nombre,
         precio: parseFloat(formData.precio),
@@ -112,7 +134,7 @@ export default function EditarProducto() {
       navigate('/admin/dashboard')
     } catch (error) {
       console.error(error)
-      alert('Error al actualizar el producto')
+      alert('Error al actualizar el producto o limpiar el almacenamiento')
     } finally {
       setLoading(false)
     }
@@ -221,7 +243,7 @@ export default function EditarProducto() {
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                   </button>
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 text-[6px] text-white px-1 rounded uppercase">Online</span>
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 text-[6px] text-white px-1 rounded uppercase font-black">Online</span>
                 </div>
               ))}
 
@@ -236,7 +258,7 @@ export default function EditarProducto() {
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                   </button>
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-purple-600 text-[6px] text-white px-1 rounded uppercase">Nueva</span>
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-purple-600 text-[6px] text-white px-1 rounded uppercase font-black">Nueva</span>
                 </div>
               ))}
 

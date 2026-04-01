@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { obtenerProductosActivos, eliminarProducto } from '../../services/productos'
+import { obtenerProductosActivos, eliminarProducto, eliminarImagenDeStorage } from '../../services/productos'
 import type { Producto } from '../../services/productos'
 import { logout } from '../../services/auth'
 import { Tranquiluxe } from "uvcanvas"
 
 export default function Dashboard() {
   const [productos, setProductos] = useState<Producto[]>([])
-  const [cargando, setCargando] = useState(true) // Iniciamos en true para el skeleton
+  const [cargando, setCargando] = useState(true)
   const [procesandoBorrado, setProcesandoBorrado] = useState(false)
   const navigate = useNavigate()
 
@@ -27,7 +27,7 @@ export default function Dashboard() {
       } catch (error) {
         console.error(error)
       } finally {
-        setCargando(false) // Desactivamos el skeleton al terminar
+        setCargando(false)
       }
     }
     fetchData()
@@ -45,18 +45,30 @@ export default function Dashboard() {
   async function confirmarEliminacion() {
     setProcesandoBorrado(true)
     try {
+      // 1. Buscamos el producto en el estado local para obtener sus imágenes
+      const productoAEliminar = productos.find(p => p.id === modalEliminar.id)
+
+      // 2. Si tiene imágenes, las borramos del Storage primero
+      if (productoAEliminar?.imagenes && productoAEliminar.imagenes.length > 0) {
+        await Promise.all(
+          productoAEliminar.imagenes.map(url => eliminarImagenDeStorage(url))
+        )
+      }
+
+      // 3. Borramos el producto de la base de datos
       await eliminarProducto(modalEliminar.id)
+
+      // 4. Actualizamos la interfaz
       setProductos(productos.filter(p => p.id !== modalEliminar.id))
       setModalEliminar({ abierto: false, id: '', nombre: '' })
     } catch (error) {
       console.error(error)
-      alert('Error al eliminar el producto')
+      alert('Error al eliminar el producto y sus archivos')
     } finally {
       setProcesandoBorrado(false)
     }
   }
 
-  // Componente interno para el Skeleton de la fila
   const SkeletonRow = () => (
     <tr className="animate-pulse border-b border-gray-100">
       <td className="p-4"><div className="w-14 h-14 bg-gray-200 rounded-xl"></div></td>
@@ -111,7 +123,6 @@ export default function Dashboard() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {cargando ? (
-                // Mostramos 5 filas de esqueleto mientras carga
                 <>
                   <SkeletonRow />
                   <SkeletonRow />
@@ -207,38 +218,38 @@ export default function Dashboard() {
 
       {/* MODAL LOGOUT */}
       {modalLogout && (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div 
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300" 
-        onClick={() => setModalLogout(false)}
-      />
-      <div className="relative z-10 bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-200">
-        <div className="flex flex-col items-center text-center">
-          <div className="bg-purple-50 text-purple-600 p-4 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-            </svg>
-          </div>
-          <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">¿Cerrar Sesión?</h3>
-          <p className="text-gray-500 mt-2 text-sm font-medium">¿Deseas salir al sitio público?</p>
-          <div className="flex gap-3 w-full mt-8">
-            <button
-              onClick={() => setModalLogout(false)}
-              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-3 rounded-2xl transition-all text-xs uppercase tracking-widest"
-            >
-              Volver
-            </button>
-            <button
-              onClick={handleLogout}
-              className="flex-1 bg-neutral-900 hover:bg-black text-white font-bold py-3 rounded-2xl transition-all shadow-lg text-xs uppercase tracking-widest"
-            >
-              Sí, Salir
-            </button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300" 
+            onClick={() => setModalLogout(false)}
+          />
+          <div className="relative z-10 bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center">
+              <div className="bg-purple-50 text-purple-600 p-4 rounded-full mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">¿Cerrar Sesión?</h3>
+              <p className="text-gray-500 mt-2 text-sm font-medium">¿Deseas salir al sitio público?</p>
+              <div className="flex gap-3 w-full mt-8">
+                <button
+                  onClick={() => setModalLogout(false)}
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-3 rounded-2xl transition-all text-xs uppercase tracking-widest"
+                >
+                  Volver
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex-1 bg-neutral-900 hover:bg-black text-white font-bold py-3 rounded-2xl transition-all shadow-lg text-xs uppercase tracking-widest"
+                >
+                  Sí, Salir
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  )}
+      )}
     </div>
   )
 }
