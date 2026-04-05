@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { crearProducto, subirImagen } from '../../services/productos'
-import { Tranquiluxe } from "uvcanvas"
 
 const TALLAS_DISPONIBLES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Estándar']
 const CATEGORIAS = ['Polos', 'Pantalones', 'Vestidos', 'Conjuntos', 'Casacas', 'Accesorios', 'Otros']
@@ -9,7 +8,6 @@ const CATEGORIAS = ['Polos', 'Pantalones', 'Vestidos', 'Conjuntos', 'Casacas', '
 export default function CrearProducto() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
-  // Cambiamos a un array de archivos
   const [imagenes, setImagenes] = useState<File[]>([])
   const [tallasSeleccionadas, setTallasSeleccionadas] = useState<string[]>([])
   
@@ -25,7 +23,6 @@ export default function CrearProducto() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const nuevosArchivos = Array.from(e.target.files)
-      // Limitamos a 5 imágenes en total
       setImagenes(prev => [...prev, ...nuevosArchivos].slice(0, 5))
     }
   }
@@ -47,7 +44,6 @@ export default function CrearProducto() {
     setLoading(true)
 
     try {
-      // Subimos todas las imágenes en paralelo
       const urlsPromesas = imagenes.map(img => subirImagen(img))
       const urlsSubidas = await Promise.all(urlsPromesas)
 
@@ -64,7 +60,7 @@ export default function CrearProducto() {
         categoria: formData.categoria,
         tallas: tallasSeleccionadas.length > 0 ? tallasSeleccionadas : null,
         colores: arrayColores.length > 0 ? arrayColores : null,
-        imagenes: urlsSubidas, // Enviamos el array de URLs
+        imagenes: urlsSubidas,
         estado: 'activo'
       })
 
@@ -78,13 +74,11 @@ export default function CrearProducto() {
   }
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center p-4 md:p-10 overflow-x-hidden">
-      
-      <div className="fixed inset-0 z-0">
-        <Tranquiluxe />
-      </div>
+    // Fondo gris claro, eliminamos animaciones
+    <div className="relative min-h-screen w-full flex flex-col items-center p-4 md:p-10 overflow-x-hidden bg-gray-50">
 
-      <div className="relative z-10 w-full max-w-2xl bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-white/20 mb-10">
+      {/* Tarjeta sólida blanca, igual que en el Dashboard */}
+      <div className="relative z-10 w-full max-w-2xl bg-white p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-10">
         <div className="mb-8">
           <h2 className="text-3xl font-black text-gray-900 tracking-tighter italic">
             NUEVO <span className="text-purple-600">PRODUCTO</span>
@@ -102,7 +96,7 @@ export default function CrearProducto() {
                 required
                 value={formData.nombre}
                 onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/50 transition-all"
+                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50 transition-all"
                 placeholder="Ej: Polo Oversize"
               />
             </div>
@@ -111,7 +105,7 @@ export default function CrearProducto() {
               <select
                 value={formData.categoria}
                 onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/50 transition-all appearance-none"
+                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50 transition-all appearance-none"
               >
                 {CATEGORIAS.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -129,7 +123,7 @@ export default function CrearProducto() {
                 required
                 value={formData.precio}
                 onChange={(e) => setFormData({ ...formData, precio: e.target.value })}
-                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/50 transition-all"
+                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50 transition-all"
               />
             </div>
             <div className="space-y-1">
@@ -139,7 +133,7 @@ export default function CrearProducto() {
                 required
                 value={formData.stock}
                 onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/50 transition-all"
+                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50 transition-all"
               />
             </div>
           </div>
@@ -149,7 +143,6 @@ export default function CrearProducto() {
               Imágenes del Producto <span className="text-purple-600">({imagenes.length}/5)</span>
             </label>
             
-            {/* Grid de previsualización */}
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-2">
               {imagenes.map((img, index) => (
                 <div key={index} className="relative aspect-square">
@@ -170,9 +163,8 @@ export default function CrearProducto() {
                 </div>
               ))}
               
-              {/* Cuadro para agregar más si falta para llegar a 5 */}
               {imagenes.length < 5 && (
-                <label className="aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-gray-50/50 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition-all">
+                <label className="aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition-all">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                   </svg>

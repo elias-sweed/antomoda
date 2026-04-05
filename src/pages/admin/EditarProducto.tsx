@@ -4,9 +4,8 @@ import {
   obtenerProductoPorId, 
   actualizarProducto, 
   subirImagen, 
-  eliminarImagenDeStorage // Importamos la nueva función
+  eliminarImagenDeStorage
 } from '../../services/productos'
-import { Tranquiluxe } from "uvcanvas"
 
 const TALLAS_DISPONIBLES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Estándar']
 const CATEGORIAS = ['Polos', 'Pantalones', 'Vestidos', 'Conjuntos', 'Casacas', 'Accesorios', 'Otros']
@@ -142,9 +141,9 @@ export default function EditarProducto() {
 
   if (cargandoDatos) {
     return (
-      <div className="relative min-h-screen w-full flex justify-center items-center bg-black">
-        <div className="absolute inset-0 z-0"><Tranquiluxe /></div>
-        <div className="relative z-10 text-white font-bold animate-pulse">Cargando datos del producto...</div>
+      // Actualizamos la pantalla de carga para que sea consistente
+      <div className="relative min-h-screen w-full flex justify-center items-center bg-gray-50">
+        <div className="relative z-10 text-gray-500 font-bold animate-pulse">Cargando datos del producto...</div>
       </div>
     )
   }
@@ -152,10 +151,11 @@ export default function EditarProducto() {
   const totalImagenes = imagenesExistentes.length + nuevasImagenes.length
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center p-4 md:p-10 overflow-x-hidden">
-      <div className="fixed inset-0 z-0"><Tranquiluxe /></div>
+    // Fondo gris claro (bg-gray-50) y sin animación
+    <div className="relative min-h-screen w-full flex flex-col items-center p-4 md:p-10 overflow-x-hidden bg-gray-50">
 
-      <div className="relative z-10 w-full max-w-2xl bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-white/20 mb-10">
+      {/* Tarjeta blanca sólida */}
+      <div className="relative z-10 w-full max-w-2xl bg-white p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 mb-10">
         <div className="mb-8">
           <h2 className="text-3xl font-black text-gray-900 tracking-tighter italic">
             EDITAR <span className="text-purple-600">PRODUCTO</span>
@@ -173,7 +173,7 @@ export default function EditarProducto() {
                 required
                 value={formData.nombre}
                 onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/50"
+                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50 transition-all"
               />
             </div>
             <div className="space-y-1">
@@ -181,7 +181,7 @@ export default function EditarProducto() {
               <select
                 value={formData.categoria}
                 onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/50"
+                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50 transition-all"
               >
                 {CATEGORIAS.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -200,7 +200,7 @@ export default function EditarProducto() {
                 required
                 value={formData.precio}
                 onChange={(e) => setFormData({ ...formData, precio: e.target.value })}
-                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/50"
+                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50 transition-all"
               />
             </div>
             <div className="space-y-1">
@@ -210,7 +210,7 @@ export default function EditarProducto() {
                 required
                 value={formData.stock}
                 onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/50"
+                className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50 transition-all"
               />
             </div>
           </div>
@@ -221,7 +221,7 @@ export default function EditarProducto() {
               rows={2}
               value={formData.descripcion}
               onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-              className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/50 resize-none"
+              className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50 transition-all resize-none"
             />
           </div>
 
@@ -264,7 +264,7 @@ export default function EditarProducto() {
 
               {/* Botón para agregar más */}
               {totalImagenes < 5 && (
-                <label className="aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-gray-50/50 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:bg-purple-50 transition-all">
+                <label className="aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:bg-gray-100 transition-all">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                   <input type="file" accept="image/*" multiple onChange={handleImageChange} className="hidden" />
                 </label>
@@ -298,7 +298,7 @@ export default function EditarProducto() {
               type="text"
               value={formData.colores}
               onChange={(e) => setFormData({ ...formData, colores: e.target.value })}
-              className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/50"
+              className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-50 transition-all"
               placeholder="Negro, Blanco..."
             />
           </div>

@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { obtenerProductosActivos, eliminarProducto, eliminarImagenDeStorage } from '../../services/productos'
 import type { Producto } from '../../services/productos'
 import { logout } from '../../services/auth'
-import { Tranquiluxe } from "uvcanvas"
 
 export default function Dashboard() {
   const [productos, setProductos] = useState<Producto[]>([])
@@ -80,12 +79,11 @@ export default function Dashboard() {
   )
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center p-4 md:p-10 overflow-x-hidden">
-      <div className="fixed inset-0 z-0">
-        <Tranquiluxe />
-      </div>
+    // Se cambió el fondo a bg-gray-50 para un diseño limpio y rápido
+    <div className="relative min-h-screen w-full flex flex-col items-center p-4 md:p-10 overflow-x-hidden bg-gray-50">
 
-      <div className="relative z-10 w-full max-w-5xl bg-white/80 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-white/20">
+      {/* Tarjeta sólida en color blanco para resaltar sobre el fondo gris */}
+      <div className="relative z-10 w-full max-w-5xl bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
           <div>
             <h2 className="text-3xl font-black text-gray-900 tracking-tighter italic">
@@ -103,17 +101,17 @@ export default function Dashboard() {
             </Link>
             <button
               onClick={() => setModalLogout(true)}
-              className="bg-red-100 hover:bg-red-200 text-red-600 px-6 py-3 rounded-2xl font-bold transition-all text-sm"
+              className="bg-red-50 hover:bg-red-100 text-red-600 px-6 py-3 rounded-2xl font-bold transition-all text-sm border border-red-100"
             >
               Salir
             </button>
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white/50">
+        <div className="overflow-x-auto rounded-2xl border border-gray-100 bg-white">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50/50">
+              <tr className="border-b border-gray-100 bg-gray-50/80">
                 <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-widest">Imagen</th>
                 <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-widest">Nombre</th>
                 <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-widest">Precio</th>
@@ -121,7 +119,7 @@ export default function Dashboard() {
                 <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-widest text-right">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-50">
               {cargando ? (
                 <>
                   <SkeletonRow />
@@ -132,12 +130,12 @@ export default function Dashboard() {
                 </>
               ) : (
                 productos.map((prod) => (
-                  <tr key={prod.id} className="hover:bg-purple-50/30 transition-colors">
+                  <tr key={prod.id} className="hover:bg-purple-50/50 transition-colors">
                     <td className="p-4">
                       <img
                         src={prod.imagenes?.[0] || 'https://via.placeholder.com/50'}
                         alt={prod.nombre}
-                        className="w-14 h-14 object-cover rounded-xl shadow-sm border border-white"
+                        className="w-14 h-14 object-cover rounded-xl shadow-sm border border-gray-100"
                       />
                     </td>
                     <td className="p-4 font-bold text-gray-800 text-sm">{prod.nombre}</td>
@@ -151,13 +149,13 @@ export default function Dashboard() {
                       <div className="flex justify-end gap-2">
                         <Link
                           to={`/admin/editar-producto/${prod.id}`}
-                          className="bg-white text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm"
+                          className="bg-white text-blue-600 hover:bg-blue-50 border border-blue-200 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm"
                         >
                           Editar
                         </Link>
                         <button
                           onClick={() => abrirConfirmacion(prod.id, prod.nombre)}
-                          className="bg-white text-red-600 hover:bg-red-600 hover:text-white border border-red-200 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm"
+                          className="bg-white text-red-600 hover:bg-red-50 border border-red-200 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm"
                         >
                           Eliminar
                         </button>
