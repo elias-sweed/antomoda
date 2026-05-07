@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { crearProducto, subirImagen } from '../../services/productos'
 
 const TALLAS_DISPONIBLES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Estándar']
-const CATEGORIAS = ['Polos', 'Pantalones', 'Vestidos', 'Conjuntos', 'Casacas', 'Accesorios', 'Otros']
+const CATEGORIAS = ['Polos', 'Pantalones', 'Shorts', 'Vestidos', 'Conjuntos','Medias', 'Casacas', 'Accesorios', 'Mochilas', 'Otros']
 
 export default function CrearProducto() {
   const navigate = useNavigate()
